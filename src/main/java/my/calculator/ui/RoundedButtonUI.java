@@ -30,7 +30,7 @@ public class RoundedButtonUI extends BasicButtonUI {
 
         // Draw background
         g2.setColor(button.getBackground());
-        g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 80, 120); // Rounded rectangle
+        g2.fillRoundRect(0, 0, button.getWidth(), button.getHeight(), 20, 20); // Rounded rectangle
 
         // Draw text
         g2.setColor(button.getForeground());
