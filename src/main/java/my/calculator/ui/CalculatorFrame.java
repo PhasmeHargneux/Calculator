@@ -1,9 +1,21 @@
 package my.calculator.ui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 public class CalculatorFrame {
@@ -27,7 +39,7 @@ public class CalculatorFrame {
         textField = new JTextField("0", 20);
         textField.setEditable(false);
         textField.setHorizontalAlignment(SwingConstants.RIGHT);
-        textField.setFont(new Font("Arial", Font.BOLD, 36));  // Increase font size
+        textField.setFont(new Font("Roboto", Font.BOLD, 36));  // Increase font size
         textField.setBackground(Color.BLACK);                 // Set background color
         textField.setForeground(Color.WHITE);                 // Set text color
         textField.setBorder(new EmptyBorder(40, 40, 5, 40)); // Add padding around text
@@ -55,6 +67,7 @@ public class CalculatorFrame {
     private JPanel createBasicPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(6, 4, 5, 5)); // Add spacing between buttons (5px)
+        panel.setBackground(Color.BLACK); // Set background color
 
         String[] buttons = {"C", "(", ")", "%", "7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", "=", "+"};
 
@@ -82,7 +95,8 @@ public class CalculatorFrame {
 
     private JPanel createScientificPanel() {
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 3, 5, 5)); // Add spacing between scientific buttons
+        panel.setLayout(new GridLayout(2, 2, 5, 5)); // Adjusted to fit remaining buttons
+        panel.setBackground(Color.BLACK);
 
         String[] sciButtons = {"sin", "cos", "tan", "Factorial"};
 
@@ -93,24 +107,16 @@ public class CalculatorFrame {
             panel.add(button);
         }
 
-        // Add button to switch back to basic mode
-        JButton basicModeButton = new JButton("Basic");
-        styleButton(basicModeButton);
-        basicModeButton.setBackground(Color.CYAN);  // Make the "Basic" button stand out
-        basicModeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(mainPanel, "Basic");
-            }
-        });
-        panel.add(basicModeButton);
-
         return panel;
     }
 
     // Method to style the buttons
     private void styleButton(JButton button) {
-        button.setFont(new Font("Arial", Font.PLAIN, 20));      // Set font size and style
+        try {
+            button.setFont(Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/Roboto-Bold.ttf")).deriveFont(36f)); // Set font size and style
+        } catch (FontFormatException | IOException e) {
+            button.setFont(new Font("Arial", Font.BOLD, 36)); // Fallback font
+        }
         button.setFocusPainted(false);                          // Remove button focus border
         button.setBackground(Color.DARK_GRAY);                  // Set background color
         button.setForeground(Color.WHITE);                      // Set text color
