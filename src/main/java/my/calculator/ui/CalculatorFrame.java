@@ -11,7 +11,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 
@@ -34,7 +33,7 @@ public class CalculatorFrame {
 
     public CalculatorFrame() {
         // Initialize the main frame
-        frame = new JFrame("Stylish Calculator");
+        frame = new JFrame("My Calculator");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600);
         frame.setLayout(new BorderLayout());
@@ -95,6 +94,7 @@ public class CalculatorFrame {
         for (String text : buttons) {
             JButton button = new JButton(text);
             styleButton(button);
+            button.addActionListener(new ButtonClickListener());
 
             gbc.gridx = col;
             gbc.gridy = row;
@@ -128,8 +128,9 @@ public class CalculatorFrame {
 
     private JPanel createScientificPanel() {
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 2, 5, 5)); // Adjusted to fit remaining buttons
-        panel.setBackground(Color.BLACK);
+        panel.setLayout(new GridLayout(3, 2, 5, 5)); // Adjusted to fit remaining buttons
+        panel.setBackground(new Color(51, 51, 51));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] sciButtons = { "sin", "cos", "tan", "Factorial" };
 
@@ -140,13 +141,27 @@ public class CalculatorFrame {
             panel.add(button);
         }
 
+        // Add the orange "Sci" button
+        JButton scientificModeButton = new JButton("Sci");
+        styleButton(scientificModeButton);
+        scientificModeButton.setBackground(Color.ORANGE);
+        scientificModeButton.setBorderPainted(false);
+        scientificModeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(mainPanel, "Basic");
+            }
+        });
+        panel.add(scientificModeButton);
+
         return panel;
     }
 
     // Method to style the buttons
     private void styleButton(JButton button) {
         try {
-            button.setFont(Font.createFont(Font.TRUETYPE_FONT, new File("src/resources/AfacadFlux-ExtraBold.ttf")).deriveFont(36f)); // Set font size and style
+            button.setFont(Font.createFont(Font.TRUETYPE_FONT, new File("src/resources/AfacadFlux-ExtraBold.ttf"))
+                    .deriveFont(36f)); // Set font size and style
         } catch (FontFormatException | IOException e) {
             button.setFont(new Font("Arial", Font.PLAIN, 36)); // Fallback font
             e.printStackTrace();
@@ -164,11 +179,12 @@ public class CalculatorFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
-            if (command.charAt(0) == 'C') {
+            if (command.equals("C")) {
                 currentText = "";
                 textField.setText("0");
-            } else if (command.charAt(0) == '=') {
-                textField.setText(currentText); // Example: replace with actual logic
+            } else if (command.equals("=")) {
+                // Example: replace with actual logic to evaluate the expression
+                textField.setText(currentText);
             } else {
                 currentText += command;
                 textField.setText(currentText);

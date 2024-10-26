@@ -11,8 +11,8 @@ import javax.swing.JTextField;
 
 public class RoundedTextFieldUI extends JTextField {
 
-    private int arcWidth;
-    private int arcHeight;
+    private final int arcWidth;
+    private final int arcHeight;
 
     public RoundedTextFieldUI(int columns, int arcWidth, int arcHeight) {
         super(columns); // This calls the JTextField constructor
@@ -27,8 +27,9 @@ public class RoundedTextFieldUI extends JTextField {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Paint a rounded rectangle as the background
-        g2.setColor(getBackground());
+        // Paint a rounded rectangle black which background is the same as the rest of the panel
+        g2.setColor(Color.BLACK);
+        getParent().setBackground(new Color(51, 51, 51));
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), arcWidth, arcHeight);
 
         super.paintComponent(g);
@@ -40,7 +41,7 @@ public class RoundedTextFieldUI extends JTextField {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Draw a rounded border
-        g2.setColor(Color.WHITE);
+        g2.setColor(Color.BLACK);
         g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcWidth, arcHeight);
     }
 
