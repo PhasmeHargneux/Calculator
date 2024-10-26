@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,windows,java,git,maven
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,windows,java,git,maven
 
+### My Files ###
+# Instructions file
+SujetCalculatrice.pdf
+
 ### Git ###
 # Created by git for backups. To disable backups in Git:
 # $ git config --global mergetool.keepBackup false
