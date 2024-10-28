@@ -1,30 +1,32 @@
 package my.calculator.core;
 
 import java.util.Stack;
+import java.lang.String;
+import java.text.DecimalFormat;
 
 public class CalculatorLogic {
 
     // Basic operations
-    public double add(double a, double b) {
+    public static double add(double a, double b) {
         return a + b;
     }
 
-    public double subtract(double a, double b) {
+    public static double subtract(double a, double b) {
         return a - b;
     }
 
-    public double multiply(double a, double b) {
+    public static double multiply(double a, double b) {
         return a * b;
     }
 
-    public double divide(double a, double b) throws ArithmeticException {
+    public static double divide(double a, double b) throws ArithmeticException {
         if (b == 0) {
             throw new ArithmeticException("Cannot divide by zero");
         }
         return a / b;
     }
 
-    public double modulo(double a, double b) throws ArithmeticException {
+    public static double modulo(double a, double b) throws ArithmeticException {
         if (b == 0) {
             throw new ArithmeticException("Cannot mod by zero");
         }
@@ -32,7 +34,7 @@ public class CalculatorLogic {
     }
 
     // Method to calculate the result from the input string
-    public double calculate(String input) throws IllegalArgumentException {
+    public static String calculate(String input) throws IllegalArgumentException {
         // Remove spaces from the input
         input = input.replaceAll("\\s+", "");
 
@@ -70,14 +72,25 @@ public class CalculatorLogic {
             numbers.push(applyOperation(operations.pop(), numbers.pop(), numbers.pop()));
         }
 
-        return numbers.pop();
+        double result = numbers.pop();
+        if (result == (int) result) {
+            return String.valueOf((int) result);
+        } else {
+            DecimalFormat df;
+            if (hasTerminatingDecimals(result)) {
+                df = new DecimalFormat("#.##########"); // Display all decimals
+            } else {
+                df = new DecimalFormat("#.##"); // Display two decimals
+            }
+            return df.format(result);
+        }
     }
 
-    private boolean isOperator(char c) {
+    private static boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
     }
 
-    private int precedence(char op) {
+    private static int precedence(char op) {
         switch (op) {
             case '+':
             case '-':
@@ -91,7 +104,7 @@ public class CalculatorLogic {
         }
     }
 
-    private double applyOperation(char op, double b, double a) {
+    private static double applyOperation(char op, double b, double a) {
         switch (op) {
             case '+':
                 return add(a, b);
@@ -106,5 +119,18 @@ public class CalculatorLogic {
             default:
                 throw new IllegalArgumentException("Invalid operator: " + op);
         }
+    }
+
+    private static boolean hasTerminatingDecimals(double number) {
+        while (number != Math.floor(number)) {
+            number *= 10;
+        }
+        while (number % 2 == 0) {
+            number /= 2;
+        }
+        while (number % 5 == 0) {
+            number /= 5;
+        }
+        return number == 1;
     }
 }

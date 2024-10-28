@@ -134,7 +134,7 @@ public class CalculatorFrame {
         panel.setBackground(new Color(51, 51, 51));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        String[] sciButtons = { "sin", "cos", "tan", "Factorial" };
+        String[] sciButtons = { "sin", "cos", "tan", "x!" };
 
         for (String text : sciButtons) {
             JButton button = new JButton(text);
@@ -185,9 +185,9 @@ public class CalculatorFrame {
                 currentText = "";
                 textField.setText("0");
             } else if (command.equals("=")) {
-                CalculatorLogic calculatorLogic = new CalculatorLogic();
-                currentText = Double.toString(calculatorLogic.calculate(currentText));
+                currentText = CalculatorLogic.calculate(currentText);
                 textField.setText(currentText);
+                System.err.println(currentText);
             } else {
                 currentText += command;
                 textField.setText(currentText);
