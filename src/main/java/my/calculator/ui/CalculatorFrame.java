@@ -1,5 +1,7 @@
 package my.calculator.ui;
 
+import my.calculator.core.*;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -183,7 +185,8 @@ public class CalculatorFrame {
                 currentText = "";
                 textField.setText("0");
             } else if (command.equals("=")) {
-                // Example: replace with actual logic to evaluate the expression
+                CalculatorLogic calculatorLogic = new CalculatorLogic();
+                currentText = Double.toString(calculatorLogic.calculate(currentText));
                 textField.setText(currentText);
             } else {
                 currentText += command;
