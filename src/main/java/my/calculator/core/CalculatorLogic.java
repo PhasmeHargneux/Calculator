@@ -1,8 +1,7 @@
 package my.calculator.core;
 
-import java.util.Stack;
-import java.lang.String;
 import java.text.DecimalFormat;
+import java.util.Stack;
 
 public class CalculatorLogic {
 
@@ -37,6 +36,11 @@ public class CalculatorLogic {
     public static String calculate(String input) throws IllegalArgumentException {
         // Remove spaces from the input
         input = input.replaceAll("\\s+", "");
+
+        // Check for consecutive operators
+        if (hasConsecutiveOperators(input)) {
+            throw new IllegalArgumentException("Invalid input: Consecutive operators");
+        }
 
         // Use a stack to handle the operations and numbers
         Stack<Double> numbers = new Stack<>();
@@ -132,5 +136,14 @@ public class CalculatorLogic {
             number /= 5;
         }
         return number == 1;
+    }
+
+    private static boolean hasConsecutiveOperators(String input) {
+        for (int i = 0; i < input.length() - 1; i++) {
+            if (isOperator(input.charAt(i)) && isOperator(input.charAt(i + 1))) {
+                return true;
+            }
+        }
+        return false;
     }
 }
