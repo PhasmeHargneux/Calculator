@@ -71,9 +71,9 @@ public class CalculatorFrame {
 
         // Initialize the display field
         textField = new RoundedTextFieldUI(4, 60, 60);
-        textField.setPreferredSize(new Dimension(400, 100));
         textField.setFont(mainFont);
-        textField.setFocusable(true);
+        Caret caret = textField.getCaret();
+        caret.setVisible(true);
         textField.requestFocusInWindow();
         textField.addFocusListener(new FocusAdapter() {
             @Override
@@ -81,12 +81,6 @@ public class CalculatorFrame {
                 textField.requestFocusInWindow();
             }
         });
-        Caret caret = textField.getCaret();
-        caret.setVisible(true);
-        textField.setHorizontalAlignment(JTextField.RIGHT);
-        textField.setBackground(new Color(51, 51, 51));
-        textField.setForeground(Color.WHITE);
-        textField.setBorder(new EmptyBorder(10, 10, 10, 10));
         textField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -141,8 +135,7 @@ public class CalculatorFrame {
         int col = 0;
 
         for (String text : basicButtons) {
-            JButton button = new JButton(text);
-            styleButton(button);
+            JButton button = new RoundedButtonUI(text);
             button.addActionListener(new ButtonClickListener());
 
             gbcBasic.gridx = col;
@@ -158,10 +151,8 @@ public class CalculatorFrame {
         }
 
         // Add the orange "Sci" button
-        JButton scientificModeButton = new JButton("Sci");
-        styleButton(scientificModeButton);
+        JButton scientificModeButton = new RoundedButtonUI("Sci");
         scientificModeButton.setBackground(Color.ORANGE); // Orange background for "Sci"
-        scientificModeButton.setBorderPainted(false); // Remove border
         scientificModeButton.addActionListener(e -> toggleScientificButtons());
         gbcBasic.gridx = 3;
         gbcBasic.gridy = row;
@@ -190,11 +181,21 @@ public class CalculatorFrame {
         int sciCol = 0;
 
         for (String text : sciButtons) {
-            JButton button = new JButton(text);
-            styleButton(button);
+            JButton button = new RoundedButtonUI(text);
             button.addActionListener(e -> {
                 String command = e.getActionCommand();
-                insertFunctionIntoTextField(command);
+                if (command.equals("e") || command.equals("π")) {
+                    insertConstantIntoTextField(command);
+                } else if (FUNCTIONS.contains(command)) {
+                    insertFunctionIntoTextField(command);
+                } else {
+                    int caretPos = textField.getCaretPosition();
+                    String before = currentText.substring(0, caretPos);
+                    String after = currentText.substring(caretPos);
+                    String newText = before + command + after;
+                    updateDisplay(newText);
+                    textField.setCaretPosition(caretPos + command.length());
+                }
             });
 
             sciGbc.gridx = sciCol;
@@ -244,14 +245,14 @@ public class CalculatorFrame {
         textField.setCaretPosition(caretPos + functionName.length() + 1);
     }
 
-    // Apply styling to the buttons
-    private void styleButton(JButton button) {
-        button.setFont(mainFont);
-        button.setPreferredSize(new Dimension(40, 40)); // Set preferred size
-        button.setBackground(Color.DARK_GRAY);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false); // Disable focus painting for cleaner look
-        button.setUI(new RoundedButtonUI());
+    private void insertConstantIntoTextField(String constant) {
+        int caretPos = textField.getCaretPosition();
+        String before = currentText.substring(0, caretPos);
+        String after = currentText.substring(caretPos);
+        String newText = before + constant + after;
+
+        updateDisplay(newText);
+        textField.setCaretPosition(caretPos + constant.length());
     }
 
     // ActionListener for button clicks
@@ -259,6 +260,7 @@ public class CalculatorFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
+            System.out.println("Button clicked: " + command);
             if (command.equals("AC")) {
                 updateDisplay("");
             } else if (command.equals("C")) {
@@ -281,7 +283,6 @@ public class CalculatorFrame {
                 int caretPos = textField.getCaretPosition();
                 String before = currentText.substring(0, caretPos);
                 String after = currentText.substring(caretPos);
-
                 String newText = before + command + after;
                 updateDisplay(newText);
 

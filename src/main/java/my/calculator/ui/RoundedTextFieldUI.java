@@ -1,12 +1,14 @@
 package my.calculator.ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 
 public class RoundedTextFieldUI extends JTextField {
@@ -18,7 +20,13 @@ public class RoundedTextFieldUI extends JTextField {
         super(columns); // This calls the JTextField constructor
         this.arcWidth = arcWidth;
         this.arcHeight = arcHeight;
-        setOpaque(false); // Make the background transparent for custom painting
+        setOpaque(false);
+        setPreferredSize(new Dimension(400, 100));
+        setFocusable(true);
+        setBackground(new Color(51, 51, 51));
+        setForeground(Color.WHITE);
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+        setHorizontalAlignment(JTextField.RIGHT);
     }
 
     @Override
