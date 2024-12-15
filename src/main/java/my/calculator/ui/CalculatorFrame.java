@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -54,7 +55,9 @@ public class CalculatorFrame {
 
     private void initialize() {
         // Initialize the main frame
-        frame = new JFrame("Calculator");
+        frame = new JFrame("Scientific Calculator");
+        ImageIcon icon = new ImageIcon("src/resources/icon.png");
+        frame.setIconImage(icon.getImage());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600); // Adjusted size to accommodate both panels
         frame.setLocationRelativeTo(null);
