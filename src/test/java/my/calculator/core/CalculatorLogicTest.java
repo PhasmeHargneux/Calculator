@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
-public class CalculatorLogicTest {
+class CalculatorLogicTest {
     @Test
-    public void testBasicArithmetic() {
+    void testBasicArithmetic() {
         assertEquals("4", CalculatorLogic.calculate("2+2"));
         assertEquals("6", CalculatorLogic.calculate("2*3"));
         assertEquals("1", CalculatorLogic.calculate("3-2"));
@@ -15,7 +15,7 @@ public class CalculatorLogicTest {
     }
 
     @Test
-    public void testScientificOperations() {
+    void testScientificOperations() {
         assertEquals("1", CalculatorLogic.calculate("sin(90)"));
         assertEquals("4", CalculatorLogic.calculate("2^2"));
         assertEquals("6", CalculatorLogic.calculate("3!"));
@@ -23,13 +23,13 @@ public class CalculatorLogicTest {
     }
 
     @Test
-    public void testConstants() {
+    void testConstants() {
         assertTrue(Math.abs(Double.parseDouble(CalculatorLogic.calculate("π")) - Math.PI) < 0.0001);
         assertTrue(Math.abs(Double.parseDouble(CalculatorLogic.calculate("e")) - Math.E) < 0.0001);
     }
 
     @Test
-    public void testErrorHandling() {
+    void testErrorHandling() {
         assertThrows(ArithmeticException.class, () -> CalculatorLogic.calculate("1/0"));
         assertThrows(IllegalArgumentException.class, () -> CalculatorLogic.calculate("2++2"));
         assertThrows(ArithmeticException.class, () -> CalculatorLogic.calculate("(-4)!"));

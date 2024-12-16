@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 
@@ -26,7 +27,7 @@ public class RoundedTextFieldUI extends JTextField {
         setBackground(new Color(51, 51, 51));
         setForeground(Color.WHITE);
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        setHorizontalAlignment(JTextField.RIGHT);
+        setHorizontalAlignment(SwingConstants.RIGHT);
     }
 
     @Override

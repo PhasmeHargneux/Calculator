@@ -22,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -35,12 +36,11 @@ public class CalculatorFrame {
     private String currentText = "";
     private Font mainFont;
     private boolean isScientific = false;
-    private JPanel basicPanel;
     private JPanel scientificPanel;
     private boolean isError = false;
     private final String[] sciButtons = { "sin", "cos", "tan", "exp", "asin", "acos", "atan", "ln",
     "!", "√", "x²", "π", "log", "10^", "e", "^", "(", ")", "←", "→" };
-    private final Set<String> FUNCTIONS = new HashSet<>(Arrays.asList(
+    private final Set<String> functions = new HashSet<>(Arrays.asList(
             "sin", "cos", "tan", "asin", "acos", "atan", "exp", "ln", "log", "√", "10^x"
     ));
 
@@ -78,7 +78,8 @@ public class CalculatorFrame {
         frame = new JFrame("Scientific Calculator");
         ImageIcon icon = new ImageIcon("src/main/resources/icon.png");
         frame.setIconImage(icon.getImage());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(400, 600); // Adjusted size to accommodate both panels
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
@@ -138,7 +139,7 @@ public class CalculatorFrame {
     }
 
     private void initializeBasicPanel() {
-        basicPanel = new JPanel();
+        JPanel basicPanel = new JPanel();
         GridBagLayout basicLayout = new GridBagLayout();
         basicPanel.setLayout(basicLayout);
         basicPanel.setBackground(new Color(51, 51, 51));
@@ -189,62 +190,70 @@ public class CalculatorFrame {
 
     private void initializeScientificPanel() {
         scientificPanel = new JPanel();
+        setupScientificPanelLayout();
+        addScientificButtons();
+        frame.add(scientificPanel, BorderLayout.EAST);
+    }
+    
+    private void setupScientificPanelLayout() {
         GridBagLayout sciLayout = new GridBagLayout();
         scientificPanel.setLayout(sciLayout);
         scientificPanel.setPreferredSize(new Dimension(400, 0));
         scientificPanel.setBackground(new Color(51, 51, 51));
         scientificPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         scientificPanel.setVisible(false); // Initially hidden
-
+    }
+    
+    private void addScientificButtons() {
         GridBagConstraints sciGbc = new GridBagConstraints();
         sciGbc.fill = GridBagConstraints.BOTH;
         sciGbc.insets = new Insets(5, 5, 5, 5);
         sciGbc.anchor = GridBagConstraints.CENTER;
         sciGbc.weightx = 1.0;
         sciGbc.weighty = 1.0;
-
+    
         int sciRow = 0;
         int sciCol = 0;
-
+    
         for (String text : sciButtons) {
             JButton button = new RoundedButtonUI(text);
             button.setFont(mainFont);
-            button.addActionListener(e -> {
-                String command = e.getActionCommand();
-                if (command.equals("e") || command.equals("π")) {
-                    insertConstantIntoTextField(command);
-                } else if (FUNCTIONS.contains(command)) {
-                    insertFunctionIntoTextField(command);
-                } else if (command.equals("x²")) {
-                    insertAtCaret("^2");
-                } else if (command.equals("←")) {
-                    int pos = textField.getCaretPosition();
-                    if (pos > 0) {
-                        textField.setCaretPosition(pos - 1);
-                    }
-                } else if (command.equals("→")) {
-                    int pos = textField.getCaretPosition();
-                    if (pos < currentText.length()) {
-                        textField.setCaretPosition(pos + 1);
-                    }
-                } else {
-                    insertAtCaret(command);
-                }
-            });
-
+            button.addActionListener(this::handleScientificButtonClick);
+    
             sciGbc.gridx = sciCol;
             sciGbc.gridy = sciRow;
-
+    
             scientificPanel.add(button, sciGbc);
-
+    
             sciCol++;
             if (sciCol == 4) { // Adjust columns as needed
                 sciCol = 0;
                 sciRow++;
             }
         }
-
-        frame.add(scientificPanel, BorderLayout.EAST);
+    }
+    
+    private void handleScientificButtonClick(ActionEvent e) {
+        String command = e.getActionCommand();
+        if (command.equals("e") || command.equals("π")) {
+            insertConstantIntoTextField(command);
+        } else if (functions.contains(command)) {
+            insertFunctionIntoTextField(command);
+        } else if (command.equals("x²")) {
+            insertAtCaret("^2");
+        } else if (command.equals("←")) {
+            int pos = textField.getCaretPosition();
+            if (pos > 0) {
+                textField.setCaretPosition(pos - 1);
+            }
+        } else if (command.equals("→")) {
+            int pos = textField.getCaretPosition();
+            if (pos < currentText.length()) {
+                textField.setCaretPosition(pos + 1);
+            }
+        } else {
+            insertAtCaret(command);
+        }
     }
 
     // Helper method to update display and keep currentText in sync
@@ -316,23 +325,23 @@ public class CalculatorFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
-            System.out.println("Button clicked: " + command);
-            if (command.equals("AC")) {
-                updateDisplay("");
-            } else if (command.equals("C")) {
-                if (!currentText.isEmpty()) {
-                    String newText = currentText.substring(0, currentText.length() - 1);
-                    updateDisplay(newText.isEmpty() ? "" : newText);
+            switch (command) {
+                case "AC" -> updateDisplay("");
+                case "C" -> {
+                    if (!currentText.isEmpty()) {
+                        String newText = currentText.substring(0, currentText.length() - 1);
+                        updateDisplay(newText.isEmpty() ? "" : newText);
+                    }
                 }
-            } else if (command.equals("=")) {
-                try {
-                    String result = CalculatorLogic.calculate(currentText);
-                    updateDisplay(result);
-                } catch (Exception ex) {
-                    showError("Error: " + ex.getMessage());                   
+                case "=" -> {
+                    try {
+                        String result = CalculatorLogic.calculate(currentText);
+                        updateDisplay(result);
+                    } catch (Exception ex) {
+                        showError("Error: " + ex.getMessage());
+                    }
                 }
-            } else {
-                insertAtCaret(command);
+                default -> insertAtCaret(command);
             }
             textField.requestFocusInWindow();
         }

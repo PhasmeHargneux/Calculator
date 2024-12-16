@@ -3,14 +3,15 @@ package my.calculator.core;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +28,11 @@ import java.util.regex.Pattern;
  * </ul>
  */
 public class CalculatorLogic {
+
+    /** Private constructor to prevent instantiation */
+    private CalculatorLogic() {
+        // Prevent instantiation
+    }
 
     /** Operator precedence mapping. Higher number = higher precedence. */
     private static final Map<String, Integer> OPERATOR_PRECEDENCE = new HashMap<>();
@@ -137,52 +143,14 @@ public class CalculatorLogic {
      */
     private static List<String> shuntingYard(String input) throws IllegalArgumentException {
         List<String> tokens = tokenize(input);
-
-        // Insert implicit multiplication where needed
         tokens = insertImplicitMultiplicationOperators(tokens);
-
         List<String> outputQueue = new ArrayList<>();
-        Stack<String> operatorStack = new Stack<>();
-
+        Deque<String> operatorStack = new ArrayDeque<>();
+    
         for (String token : tokens) {
-            if (isNumber(token)) {
-                outputQueue.add(token);
-            } else if (CONSTANTS.containsKey(token)) {
-                // Convert constants into their numeric values immediately
-                double val = (token.equals("π")) ? Math.PI : Math.E;
-                outputQueue.add(Double.toString(val));
-            } else if (FUNCTIONS.contains(token)) {
-                operatorStack.push(token);
-            } else if (isOperator(token)) {
-                while (!operatorStack.isEmpty() && isOperator(operatorStack.peek())) {
-                    String topOp = operatorStack.peek();
-                    if ((OPERATOR_ASSOCIATIVITY.get(token) && OPERATOR_PRECEDENCE.get(token) <= OPERATOR_PRECEDENCE.get(topOp))
-                            || (!OPERATOR_ASSOCIATIVITY.get(token) && OPERATOR_PRECEDENCE.get(token) < OPERATOR_PRECEDENCE.get(topOp))) {
-                        outputQueue.add(operatorStack.pop());
-                    } else {
-                        break;
-                    }
-                }
-                operatorStack.push(token);
-            } else if (token.equals("(")) {
-                operatorStack.push(token);
-            } else if (token.equals(")")) {
-                while (!operatorStack.isEmpty() && !operatorStack.peek().equals("(")) {
-                    outputQueue.add(operatorStack.pop());
-                }
-                if (operatorStack.isEmpty()) {
-                    throw new IllegalArgumentException("Mismatched parentheses");
-                }
-                operatorStack.pop(); // pop "("
-                // If the token at the top of the stack is a function, pop it onto the output queue
-                if (!operatorStack.isEmpty() && FUNCTIONS.contains(operatorStack.peek())) {
-                    outputQueue.add(operatorStack.pop());
-                }
-            } else {
-                throw new IllegalArgumentException("Unknown token: " + token);
-            }
+            processToken(token, outputQueue, operatorStack);
         }
-
+    
         while (!operatorStack.isEmpty()) {
             String op = operatorStack.pop();
             if (op.equals("(") || op.equals(")")) {
@@ -190,8 +158,53 @@ public class CalculatorLogic {
             }
             outputQueue.add(op);
         }
-
+    
         return outputQueue;
+    }
+    
+    private static void processToken(String token, List<String> outputQueue, Deque<String> operatorStack) {
+        if (isNumber(token)) {
+            outputQueue.add(token);
+        } else if (CONSTANTS.containsKey(token)) {
+            double val = (token.equals("π")) ? Math.PI : Math.E;
+            outputQueue.add(Double.toString(val));
+        } else if (FUNCTIONS.contains(token)) {
+            operatorStack.push(token);
+        } else if (isOperator(token)) {
+            handleOperator(token, outputQueue, operatorStack);
+        } else if (token.equals("(")) {
+            operatorStack.push(token);
+        } else if (token.equals(")")) {
+            handleClosingParenthesis(outputQueue, operatorStack);
+        } else {
+            throw new IllegalArgumentException("Unknown token: " + token);
+        }
+    }
+    
+    private static void handleOperator(String token, List<String> outputQueue, Deque<String> operatorStack) {
+        while (!operatorStack.isEmpty() && isOperator(operatorStack.peek())) {
+            String topOp = operatorStack.peek();
+            if ((OPERATOR_ASSOCIATIVITY.get(token) && OPERATOR_PRECEDENCE.get(token) <= OPERATOR_PRECEDENCE.get(topOp))
+                    || (!OPERATOR_ASSOCIATIVITY.get(token) && OPERATOR_PRECEDENCE.get(token) < OPERATOR_PRECEDENCE.get(topOp))) {
+                outputQueue.add(operatorStack.pop());
+            } else {
+                break;
+            }
+        }
+        operatorStack.push(token);
+    }
+    
+    private static void handleClosingParenthesis(List<String> outputQueue, Deque<String> operatorStack) {
+        while (!operatorStack.isEmpty() && !operatorStack.peek().equals("(")) {
+            outputQueue.add(operatorStack.pop());
+        }
+        if (operatorStack.isEmpty()) {
+            throw new IllegalArgumentException("Mismatched parentheses");
+        }
+        operatorStack.pop(); // pop "("
+        if (!operatorStack.isEmpty() && FUNCTIONS.contains(operatorStack.peek())) {
+            outputQueue.add(operatorStack.pop());
+        }
     }
 
     /**
@@ -202,8 +215,7 @@ public class CalculatorLogic {
      * @throws IllegalArgumentException if invalid tokens are detected.
      */
     private static List<String> tokenize(String input) throws IllegalArgumentException {
-        input = input.replaceAll("÷", "/");
-
+        input = input.replace("÷", "/");
         // Regex patterns for numbers, functions, operators, parentheses, constants
         String numberPattern = "\\d+(\\.\\d+)?";
         String functionPattern = "(sin|cos|tan|asin|acos|atan|exp|ln|log|√|10\\^x)";
@@ -281,11 +293,9 @@ public class CalculatorLogic {
         List<String> processedTokens = new ArrayList<>();
         for (int i = 0; i < tokens.size(); i++) {
             String token = tokens.get(i);
-            if (token.equals("-")) {
-                if (i == 0 || (isOperator(tokens.get(i - 1)) || tokens.get(i - 1).equals("("))) {
-                    // Unary minus detected, treat it as "0 - ..."
-                    processedTokens.add("0");
-                }
+            if (token.equals("-") && (i == 0 || isOperator(tokens.get(i - 1)) || tokens.get(i - 1).equals("("))) {
+                // Unary minus detected, treat it as "0 - ..."
+                processedTokens.add("0");
             }
             processedTokens.add(token);
         }
@@ -308,11 +318,11 @@ public class CalculatorLogic {
      * @throws ArithmeticException      if arithmetic errors occur.
      */
     private static double evaluateRPN(List<String> tokens) {
-        Stack<Double> numbers = new Stack<>();
+        Deque<Double> numbers = new ArrayDeque<>();
         
         for (String token : tokens) {
             if (isNumber(token)) {
-                numbers.push(Double.parseDouble(token));
+                numbers.push(Double.valueOf(token));
             } else if (isConstant(token)) {
                 numbers.push(getConstantValue(token));
             } else if (isFunction(token)) {
@@ -351,30 +361,26 @@ public class CalculatorLogic {
      * @throws ArithmeticException if division or modulus by zero occurs
      */
     private static double applyOperator(double a, double b, String operator) throws ArithmeticException {
-        switch (operator) {
-            case "+":
-                return a + b;
-            case "-":
-                return a - b;
-            case "*":
-                return a * b;
-            case "/":
-                if (b == 0) {
-                    throw new ArithmeticException("Cannot divide by zero");
-                }
-                return a / b;
-            case "%":
-                if (b == 0) {
-                    throw new ArithmeticException("Cannot mod by zero");
-                }
-                return a % b;
-            case "^":
-                return Math.pow(a, b);
-            case "!":
-                return factorial(a);   
-            default:
-                throw new IllegalArgumentException("Unknown operator: " + operator);
-        }
+        return switch (operator) {
+                    case "+" -> a + b;
+                    case "-" -> a - b;
+                    case "*" -> a * b;
+                    case "/" -> {
+                        if (b == 0) {
+                            throw new ArithmeticException("Cannot divide by zero");
+                        }
+                        yield a / b;
+                    }
+                    case "%" -> {
+                        if (b == 0) {
+                            throw new ArithmeticException("Cannot mod by zero");
+                        }
+                        yield a % b;
+                    }
+                    case "^" -> Math.pow(a, b);
+                    case "!" -> factorial(a);
+                    default -> throw new IllegalArgumentException("Unknown operator: " + operator);
+                };
     }
 
     /**
@@ -387,45 +393,37 @@ public class CalculatorLogic {
      * @throws ArithmeticException      if the function is not defined for the given operand
      */
     private static double applyFunction(double a, String function) throws IllegalArgumentException, ArithmeticException {
-        switch (function) {
-            case "sin":
-                return Math.sin(Math.toRadians(a));
-            case "cos":
-                return Math.cos(Math.toRadians(a));
-            case "tan":
-                return Math.tan(Math.toRadians(a));
-            case "asin":
-                return Math.toDegrees(Math.asin(a));
-            case "acos":
-                return Math.toDegrees(Math.acos(a));
-            case "atan":
-                return Math.toDegrees(Math.atan(a));
-            case "exp":
-                return Math.exp(a);
-            case "ln":
+        return switch (function) {
+            case "sin" -> Math.sin(Math.toRadians(a));
+            case "cos" -> Math.cos(Math.toRadians(a));
+            case "tan" -> Math.tan(Math.toRadians(a));
+            case "asin" -> Math.toDegrees(Math.asin(a));
+            case "acos" -> Math.toDegrees(Math.acos(a));
+            case "atan" -> Math.toDegrees(Math.atan(a));
+            case "exp" -> Math.exp(a);
+            case "ln" -> {
                 if (a <= 0) {
                     throw new ArithmeticException("ln undefined for non-positive values");
                 }
-                return Math.log(a);
-            case "log":
+                yield Math.log(a);
+            }
+            case "log" -> {
                 if (a <= 0) {
                     throw new ArithmeticException("log undefined for non-positive values");
                 }
-                return Math.log10(a);
-            case "√":
+                yield Math.log10(a);
+            }
+            case "√" -> {
                 if (a < 0) {
                     throw new ArithmeticException("Square root of negative number is undefined");
                 }
-                return Math.sqrt(a);
-            case "x²":
-                return a * a;
-            case "n!":
-                return factorial(a);
-            case "10^x":
-                return Math.pow(10, a);
-            default:
-                throw new IllegalArgumentException("Unknown function: " + function);
-        }
+                yield Math.sqrt(a);
+            }
+            case "x²" -> a * a;
+            case "n!" -> factorial(a);
+            case "10^x" -> Math.pow(10, a);
+            default -> throw new IllegalArgumentException("Unknown function: " + function);
+        };
     }
 
     /**

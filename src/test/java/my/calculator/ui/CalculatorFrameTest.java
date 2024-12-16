@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
-public class CalculatorFrameTest {
-    private CalculatorFrame calculator = new CalculatorFrame();
+class CalculatorFrameTest {
+    private final CalculatorFrame calculator = new CalculatorFrame();
 
     @Test
-    public void testInitialization() throws InvocationTargetException, InterruptedException {
+    void testInitialization() throws InvocationTargetException, InterruptedException {
         SwingUtilities.invokeAndWait(() -> {
             assertNotNull(calculator.getTextField(), "Text field should be initialized");
             assertEquals("", calculator.getCurrentText(), "Display should be empty initially");
@@ -23,7 +23,7 @@ public class CalculatorFrameTest {
     }
 
     @Test
-    public void testScientificModeToggle() throws InvocationTargetException, InterruptedException {
+    void testScientificModeToggle() throws InvocationTargetException, InterruptedException {
         assertFalse(calculator.isScientific(), "Scientific mode should be initially off");
         SwingUtilities.invokeAndWait(() -> {
             calculator.toggleScientificButtons();
@@ -32,7 +32,7 @@ public class CalculatorFrameTest {
     }
 
     @Test
-    public void testBasicOperations() throws InvocationTargetException, InterruptedException {
+    void testBasicOperations() throws InvocationTargetException, InterruptedException {
         SwingUtilities.invokeAndWait(() -> {
             calculator.insertAtCaret("2+2");
             calculator.new ButtonClickListener().actionPerformed(
