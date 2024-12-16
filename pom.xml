@@ -28,18 +28,17 @@
       <scope>test</scope>
     </dependency>
     
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.7.0</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <!-- Add other dependencies here if needed -->
-
   </dependencies>
 
   <build>
+    <!-- Build project structure -->
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
     <plugins>
       <!-- Maven Compiler Plugin to specify Java version -->
       <plugin>

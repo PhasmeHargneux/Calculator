@@ -37,17 +37,37 @@ public class CalculatorFrame {
     private boolean isScientific = false;
     private JPanel basicPanel;
     private JPanel scientificPanel;
-
-    // List to store scientific buttons
+    private boolean isError = false;
     private final String[] sciButtons = { "sin", "cos", "tan", "exp", "asin", "acos", "atan", "ln",
-            "n!", "√", "x²", "π", "log", "10^", "e", "^", "(", ")" };
-    
+    "!", "√", "x²", "π", "log", "10^", "e", "^", "(", ")", "←", "→" };
     private final Set<String> FUNCTIONS = new HashSet<>(Arrays.asList(
-            "sin", "cos", "tan", "asin", "acos", "atan", "exp", "ln", "log", "√", "x²", "n!", "10^x"
+            "sin", "cos", "tan", "asin", "acos", "atan", "exp", "ln", "log", "√", "10^x"
     ));
-    private final Set<String> CONSTANTS = new HashSet<>(Arrays.asList(
-            "e", "π"
-    ));
+
+    // Getters
+    public boolean isScientific() {
+        return isScientific;
+    }
+
+    public JTextField getTextField() {
+        return textField;
+    }
+
+    public String getCurrentText() {
+        return currentText;
+    }
+
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    public JPanel getScientificPanel() {
+        return scientificPanel;
+    }
+
+    public int getCaretPosition() {
+        return textField.getCaretPosition();
+    }
 
     public CalculatorFrame() {
         initialize();
@@ -56,7 +76,7 @@ public class CalculatorFrame {
     private void initialize() {
         // Initialize the main frame
         frame = new JFrame("Scientific Calculator");
-        ImageIcon icon = new ImageIcon("src/resources/icon.png");
+        ImageIcon icon = new ImageIcon("src/main/resources/icon.png");
         frame.setIconImage(icon.getImage());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600); // Adjusted size to accommodate both panels
@@ -66,7 +86,7 @@ public class CalculatorFrame {
         // Initialize the mainFont
         try {
             mainFont = Font.createFont(Font.TRUETYPE_FONT,
-                    new File("src/resources/AfacadFlux-ExtraBold.ttf")).deriveFont(36f);
+                    new File("src/main/resources/AfacadFlux-ExtraBold.ttf")).deriveFont(36f);
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
             mainFont = new Font("Arial", Font.PLAIN, 24); // Fallback font
@@ -77,6 +97,7 @@ public class CalculatorFrame {
         textField.setFont(mainFont);
         Caret caret = textField.getCaret();
         caret.setVisible(true);
+        textField.setCaretColor(Color.GRAY);
         textField.requestFocusInWindow();
         textField.addFocusListener(new FocusAdapter() {
             @Override
@@ -139,6 +160,7 @@ public class CalculatorFrame {
 
         for (String text : basicButtons) {
             JButton button = new RoundedButtonUI(text);
+            button.setFont(mainFont);
             button.addActionListener(new ButtonClickListener());
 
             gbcBasic.gridx = col;
@@ -155,6 +177,7 @@ public class CalculatorFrame {
 
         // Add the orange "Sci" button
         JButton scientificModeButton = new RoundedButtonUI("Sci");
+        scientificModeButton.setFont(mainFont);
         scientificModeButton.setBackground(Color.ORANGE); // Orange background for "Sci"
         scientificModeButton.addActionListener(e -> toggleScientificButtons());
         gbcBasic.gridx = 3;
@@ -185,19 +208,27 @@ public class CalculatorFrame {
 
         for (String text : sciButtons) {
             JButton button = new RoundedButtonUI(text);
+            button.setFont(mainFont);
             button.addActionListener(e -> {
                 String command = e.getActionCommand();
                 if (command.equals("e") || command.equals("π")) {
                     insertConstantIntoTextField(command);
                 } else if (FUNCTIONS.contains(command)) {
                     insertFunctionIntoTextField(command);
+                } else if (command.equals("x²")) {
+                    insertAtCaret("^2");
+                } else if (command.equals("←")) {
+                    int pos = textField.getCaretPosition();
+                    if (pos > 0) {
+                        textField.setCaretPosition(pos - 1);
+                    }
+                } else if (command.equals("→")) {
+                    int pos = textField.getCaretPosition();
+                    if (pos < currentText.length()) {
+                        textField.setCaretPosition(pos + 1);
+                    }
                 } else {
-                    int caretPos = textField.getCaretPosition();
-                    String before = currentText.substring(0, caretPos);
-                    String after = currentText.substring(caretPos);
-                    String newText = before + command + after;
-                    updateDisplay(newText);
-                    textField.setCaretPosition(caretPos + command.length());
+                    insertAtCaret(command);
                 }
             });
 
@@ -224,7 +255,7 @@ public class CalculatorFrame {
     }
 
     // Method to toggle scientific buttons
-    private void toggleScientificButtons() {
+    public void toggleScientificButtons() {
         if (!isScientific) {
             scientificPanel.setVisible(true);
             frame.setSize(frame.getWidth() + scientificPanel.getPreferredSize().width, frame.getHeight()); // Adjust width as needed
@@ -237,7 +268,7 @@ public class CalculatorFrame {
         frame.repaint();
     }
 
-    private void insertFunctionIntoTextField(String functionName) {
+    public void insertFunctionIntoTextField(String functionName) {
         int caretPos = textField.getCaretPosition();
         String before = currentText.substring(0, caretPos);
         String after = currentText.substring(caretPos);
@@ -248,7 +279,7 @@ public class CalculatorFrame {
         textField.setCaretPosition(caretPos + functionName.length() + 1);
     }
 
-    private void insertConstantIntoTextField(String constant) {
+    public void insertConstantIntoTextField(String constant) {
         int caretPos = textField.getCaretPosition();
         String before = currentText.substring(0, caretPos);
         String after = currentText.substring(caretPos);
@@ -258,8 +289,30 @@ public class CalculatorFrame {
         textField.setCaretPosition(caretPos + constant.length());
     }
 
-    // ActionListener for button clicks
-    private class ButtonClickListener implements ActionListener {
+    public void insertAtCaret(String text) {
+        if (isError) {
+            isError = false;
+            textField.setFont(mainFont);
+            updateDisplay("");
+        }
+        int caretPos = textField.getCaretPosition();
+        String before = currentText.substring(0, caretPos);
+        String after = currentText.substring(caretPos);
+        String newText = before + text + after;
+
+        updateDisplay(newText);
+        textField.setCaretPosition(caretPos + text.length());
+    }
+
+    public void showError(String errorMessage) {
+        isError = true;
+        Font smallFont = mainFont.deriveFont(12f); // Set to smaller size
+        textField.setFont(smallFont);
+        updateDisplay(errorMessage);
+    }
+
+    // ActionListener for basic button clicks
+    public class ButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
@@ -276,21 +329,10 @@ public class CalculatorFrame {
                     String result = CalculatorLogic.calculate(currentText);
                     updateDisplay(result);
                 } catch (Exception ex) {
-                    // Reduce the font size for error messages
-                    Font smallFont = mainFont.deriveFont(12f); // Set to smaller size
-                    textField.setFont(smallFont);
-                    updateDisplay(ex.getMessage());
+                    showError("Error: " + ex.getMessage());                   
                 }
             } else {
-                // For digits and operators, insert at caret position
-                int caretPos = textField.getCaretPosition();
-                String before = currentText.substring(0, caretPos);
-                String after = currentText.substring(caretPos);
-                String newText = before + command + after;
-                updateDisplay(newText);
-
-                // Move caret forward by the length of the inserted command (usually 1 char)
-                textField.setCaretPosition(caretPos + command.length());
+                insertAtCaret(command);
             }
             textField.requestFocusInWindow();
         }

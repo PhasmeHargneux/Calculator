@@ -36,7 +36,7 @@ public class CalculatorLogic {
     /** Set of supported functions (no longer includes pi or e). */
     private static final Set<String> FUNCTIONS = new HashSet<>(Arrays.asList(
             "sin", "cos", "tan", "asin", "acos", "atan",
-            "exp", "ln", "log", "√", "x²", "n!", "10^x"
+            "exp", "ln", "log", "√", "x²", "10^x"
             // Note: "e" and "π" removed from functions
     ));
 
@@ -47,15 +47,17 @@ public class CalculatorLogic {
         // Define operator precedence
         OPERATOR_PRECEDENCE.put("(", 0);
         OPERATOR_PRECEDENCE.put(")", 0);
-        OPERATOR_PRECEDENCE.put("^", 4);
-        OPERATOR_PRECEDENCE.put("%", 3);
-        OPERATOR_PRECEDENCE.put("*", 3);
-        OPERATOR_PRECEDENCE.put("/", 3);
-        OPERATOR_PRECEDENCE.put("+", 2);
-        OPERATOR_PRECEDENCE.put("-", 2);
+        OPERATOR_PRECEDENCE.put("^", 3);
+        OPERATOR_PRECEDENCE.put("%", 2);
+        OPERATOR_PRECEDENCE.put("*",2);
+        OPERATOR_PRECEDENCE.put("/", 2);
+        OPERATOR_PRECEDENCE.put("+", 1);
+        OPERATOR_PRECEDENCE.put("-", 1);
+        OPERATOR_PRECEDENCE.put("!", 4);
 
         // Define operator associativity
         OPERATOR_ASSOCIATIVITY.put("^", false);
+        OPERATOR_ASSOCIATIVITY.put("!", false);
         OPERATOR_ASSOCIATIVITY.put("*", true);
         OPERATOR_ASSOCIATIVITY.put("/", true);
         OPERATOR_ASSOCIATIVITY.put("%", true);
@@ -204,12 +206,21 @@ public class CalculatorLogic {
 
         // Regex patterns for numbers, functions, operators, parentheses, constants
         String numberPattern = "\\d+(\\.\\d+)?";
-        String functionPattern = "(sin|cos|tan|asin|acos|atan|exp|ln|log|√|x²|n!|10\\^x)";
+        String functionPattern = "(sin|cos|tan|asin|acos|atan|exp|ln|log|√|10\\^x)";
         String constantsPattern = "(π|e)";
-        String operatorPattern = "[-+*/%^()]|\\^";
+        String binaryOperatorPattern = "[-+*/%^]";
+        String unaryOperatorPattern = "[!]";  // Factorial as unary operator
+        String parenthesesPattern = "[()]";
 
         // Combined pattern: function | number | constants | operator
-        String tokenPattern = String.format("(%s)|(%s)|(%s)|(%s)", functionPattern, numberPattern, constantsPattern, operatorPattern);
+        String tokenPattern = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)", 
+        functionPattern, 
+        numberPattern, 
+        constantsPattern, 
+        binaryOperatorPattern,
+        unaryOperatorPattern,
+        parenthesesPattern);
+
         Pattern pattern = Pattern.compile(tokenPattern);
         Matcher matcher = pattern.matcher(input);
 
@@ -282,13 +293,6 @@ public class CalculatorLogic {
     }
 
     /**
-     * Checks if a token is a constant
-     */
-    private static boolean isConstant(String token) {
-        return CONSTANTS.containsKey(token);
-    }
-
-    /**
      * Gets constant value
      */
     private static double getConstantValue(String token) {
@@ -303,39 +307,38 @@ public class CalculatorLogic {
      * @throws IllegalArgumentException if the RPN expression is invalid.
      * @throws ArithmeticException      if arithmetic errors occur.
      */
-    private static double evaluateRPN(List<String> rpn) throws IllegalArgumentException, ArithmeticException {
-        Stack<Double> stack = new Stack<>();
-
-        for (String token : rpn) {
+    private static double evaluateRPN(List<String> tokens) {
+        Stack<Double> numbers = new Stack<>();
+        
+        for (String token : tokens) {
             if (isNumber(token)) {
-                stack.push(Double.valueOf(token));
+                numbers.push(Double.parseDouble(token));
             } else if (isConstant(token)) {
-                stack.push(getConstantValue(token));
-            } else if (isOperator(token)) {
-                if (stack.size() < 2) {
-                    throw new IllegalArgumentException("Insufficient values for operation " + token);
-                }
-                double b = stack.pop();
-                double a = stack.pop();
-                double result = applyOperator(a, b, token);
-                stack.push(result);
-            } else if (FUNCTIONS.contains(token)) {
-                if (stack.isEmpty()) {
+                numbers.push(getConstantValue(token));
+            } else if (isFunction(token)) {
+                if (numbers.isEmpty()) {
                     throw new IllegalArgumentException("Insufficient values for function " + token);
                 }
-                double a = stack.pop();
-                double result = applyFunction(a, token);
-                stack.push(result);
-            } else {
-                throw new IllegalArgumentException("Unknown token in RPN: " + token);
+                double a = numbers.pop();
+                numbers.push(applyFunction(a, token));
+            } else if (token.equals("!")) {
+                // Special case for factorial as postfix operator
+                if (numbers.isEmpty()) {
+                    throw new IllegalArgumentException("Insufficient values for operation !");
+                }
+                double a = numbers.pop();
+                numbers.push(factorial(a));
+            } else if (isOperator(token)) {
+                if (numbers.size() < 2) {
+                    throw new IllegalArgumentException("Insufficient values for operation " + token);
+                }
+                double b = numbers.pop();
+                double a = numbers.pop();
+                numbers.push(applyOperator(a, b, token));
             }
         }
-
-        if (stack.size() != 1) {
-            throw new IllegalArgumentException("Invalid RPN expression");
-        }
-
-        return stack.pop();
+        
+        return numbers.pop();
     }
 
     /**
@@ -367,6 +370,8 @@ public class CalculatorLogic {
                 return a % b;
             case "^":
                 return Math.pow(a, b);
+            case "!":
+                return factorial(a);   
             default:
                 throw new IllegalArgumentException("Unknown operator: " + operator);
         }
@@ -462,6 +467,13 @@ public class CalculatorLogic {
     }
 
     /**
+     * Checks if a token is a constant
+     */
+    private static boolean isConstant(String token) {
+        return CONSTANTS.containsKey(token);
+    }
+
+    /**
      * Checks if a string is an operator.
      *
      * @param token the string token
@@ -469,6 +481,16 @@ public class CalculatorLogic {
      */
     private static boolean isOperator(String token) {
         return OPERATOR_PRECEDENCE.containsKey(token) && !token.equals("(") && !token.equals(")");
+    }
+
+    /**
+     * Checks if a string is a function.
+     *
+     * @param token the string token
+     * @return true if token is a function, false otherwise
+     */
+    private static boolean isFunction(String token) {
+        return FUNCTIONS.contains(token);
     }
 
     /**

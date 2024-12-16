@@ -2,15 +2,11 @@ package my.calculator.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
-import java.io.File;
-import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -20,17 +16,8 @@ import javax.swing.JButton;
  */
 public class RoundedButtonUI extends JButton {
 
-    private Font mainFont;
     public RoundedButtonUI(String text) {
         super(text);
-
-        try {
-            mainFont = Font.createFont(Font.TRUETYPE_FONT,
-            new File("src/resources/AfacadFlux-ExtraBold.ttf")).deriveFont(36f);
-        } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
-            mainFont = new Font("Arial", Font.PLAIN, 24); // Fallback font
-        }
 
         setPreferredSize(new Dimension(40, 40));
         setOpaque(false);
@@ -40,7 +27,6 @@ public class RoundedButtonUI extends JButton {
         setBorderPainted(false);
         setBackground(Color.DARK_GRAY);
         setForeground(Color.WHITE);
-        setFont(mainFont);
     }
 
     @Override
