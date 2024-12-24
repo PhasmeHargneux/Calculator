@@ -384,6 +384,19 @@ public class CalculatorLogic {
     }
 
     /**
+     * Checks if the value is within the domain of the given function.
+     *
+     * @param function the function name
+     * @param value    the value to check
+     * @throws IllegalArgumentException if the value is out of the domain
+     */
+    private static void checkDomain(String function, double value) {
+        if ((function.equals("asin") || function.equals("acos")) && (value < -1 || value > 1)) {
+            throw new IllegalArgumentException("Domain definition of " + function + " is (-1, 1)");
+        }
+    }
+
+    /**
      * Applies a mathematical function to an operand.
      *
      * @param a        the operand
@@ -393,6 +406,7 @@ public class CalculatorLogic {
      * @throws ArithmeticException      if the function is not defined for the given operand
      */
     private static double applyFunction(double a, String function) throws IllegalArgumentException, ArithmeticException {
+        checkDomain(function, a);
         return switch (function) {
             case "sin" -> Math.sin(Math.toRadians(a));
             case "cos" -> Math.cos(Math.toRadians(a));

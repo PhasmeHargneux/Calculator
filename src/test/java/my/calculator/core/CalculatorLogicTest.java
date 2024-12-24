@@ -33,5 +33,6 @@ class CalculatorLogicTest {
         assertThrows(ArithmeticException.class, () -> CalculatorLogic.calculate("1/0"));
         assertThrows(IllegalArgumentException.class, () -> CalculatorLogic.calculate("2++2"));
         assertThrows(ArithmeticException.class, () -> CalculatorLogic.calculate("(-4)!"));
+        assertThrows(IllegalArgumentException.class, () -> CalculatorLogic.calculate("asin(2)"));
     }
 }
