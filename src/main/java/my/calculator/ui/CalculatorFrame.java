@@ -1,7 +1,7 @@
 package my.calculator.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -11,10 +11,14 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
@@ -34,6 +38,8 @@ public class CalculatorFrame {
     private JFrame frame;
     private JTextField textField;
     private String currentText = "";
+    private List<String> history = new ArrayList<>();
+    private int historyIndex = -1;
     private Font mainFont;
     private boolean isScientific = false;
     private JPanel scientificPanel;
@@ -75,10 +81,7 @@ public class CalculatorFrame {
 
     private void initialize() {
         // Initialize the main frame
-        frame = new JFrame("Scientific Calculator");
-        ImageIcon icon = new ImageIcon("src/main/resources/icon.png");
-        frame.setIconImage(icon.getImage());
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame = new JFrame("Java Scientific Calculator");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(400, 600); // Adjusted size to accommodate both panels
         frame.setLocationRelativeTo(null);
@@ -122,10 +125,22 @@ public class CalculatorFrame {
         });
         textField.addActionListener(e -> {
             try {
-                String result = CalculatorLogic.calculate(currentText);
-                updateDisplay(result);
+                String expr = currentText; // Preserve the expression
+                String result = CalculatorLogic.calculate(expr);
+                addToHistory(expr);        // Store the expression in history
+                updateDisplay(result);     // Then display the result
             } catch (Exception ex) {
                 updateDisplay("Error: " + ex.getMessage());
+            }
+        });
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_UP) {
+                    navigateHistory(-1);
+                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    navigateHistory(1);
+                }
             }
         });
         frame.add(textField, BorderLayout.NORTH);
@@ -320,6 +335,31 @@ public class CalculatorFrame {
         updateDisplay(errorMessage);
     }
 
+    // Method to add expression to history
+    private void addToHistory(String expression) {
+        history.add(expression);
+        historyIndex = history.size();
+    }
+
+    // Method to navigate through history
+    private void navigateHistory(int direction) {
+        if (history.isEmpty()) return;
+
+        historyIndex += direction;
+        if (historyIndex < 0) {
+            historyIndex = 0;
+        } else if (historyIndex >= history.size()) {
+            historyIndex = history.size() - 1;
+        }
+
+        setCurrentText(history.get(historyIndex));
+    }
+
+    // Method to set the current text in the calculator display
+    public void setCurrentText(String text) {
+        updateDisplay(text);
+    }
+
     // ActionListener for basic button clicks
     public class ButtonClickListener implements ActionListener {
         @Override
@@ -335,7 +375,12 @@ public class CalculatorFrame {
                 }
                 case "=" -> {
                     try {
-                        String result = CalculatorLogic.calculate(currentText);
+                        // Preserve the expression before calculating
+                        String expr = currentText;
+                        String result = CalculatorLogic.calculate(expr);
+                        // Store the expression in history
+                        addToHistory(expr);
+                        // Then display the result
                         updateDisplay(result);
                     } catch (Exception ex) {
                         showError("Error: " + ex.getMessage());
