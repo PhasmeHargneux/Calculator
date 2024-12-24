@@ -46,7 +46,7 @@ An advanced Java calculator featuring a sleek GUI, scientific functions, and rob
 
 1. **Clone this repository**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/calculator.git
+   git clone https://github.com/PhasmeHargneux/calculator.git
    cd calculator
    ```
 
