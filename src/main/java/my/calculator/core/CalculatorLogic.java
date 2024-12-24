@@ -16,16 +16,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The {@code CalculatorLogic} class provides methods to parse and evaluate mathematical expressions.
+ * The CalculatorLogic class provides methods to parse and evaluate mathematical expressions.
  * It supports basic arithmetic operations, scientific functions, implicit multiplication, and constants.
- * <p>
+ * 
  * Features:
- * <ul>
- *   <li>Shunting Yard algorithm for infix to RPN conversion</li>
- *   <li>RPN evaluation with arithmetic and scientific functions</li>
- *   <li>Implicit multiplication (e.g., "9sin(90)" → "9 * sin(90)")</li>
- *   <li>Constants: π (pi) and e are handled as numeric constants, not functions.</li>
- * </ul>
+ *   -Shunting Yard algorithm for infix to RPN conversion
+ *   -RPN evaluation with arithmetic and scientific functions
+ *   -Implicit multiplication (e.g., "9sin(90)" → "9 * sin(90)")
+ *   -Constants: π (pi) and e are handled as numeric constants, not functions.
  */
 public class CalculatorLogic {
 
@@ -43,7 +41,6 @@ public class CalculatorLogic {
     private static final Set<String> FUNCTIONS = new HashSet<>(Arrays.asList(
             "sin", "cos", "tan", "asin", "acos", "atan",
             "exp", "ln", "log", "√", "x²", "10^x"
-            // Note: "e" and "π" removed from functions
     ));
 
     /** Set of constants: pi and e. These are treated as numeric constants. */
@@ -216,15 +213,12 @@ public class CalculatorLogic {
      */
     private static List<String> tokenize(String input) throws IllegalArgumentException {
         input = input.replace("÷", "/");
-        // Regex patterns for numbers, functions, operators, parentheses, constants
         String numberPattern = "\\d+(\\.\\d+)?";
         String functionPattern = "(sin|cos|tan|asin|acos|atan|exp|ln|log|√|10\\^x)";
         String constantsPattern = "(π|e)";
         String binaryOperatorPattern = "[-+*/%^]";
         String unaryOperatorPattern = "[!]";  // Factorial as unary operator
         String parenthesesPattern = "[()]";
-
-        // Combined pattern: function | number | constants | operator
         String tokenPattern = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)", 
         functionPattern, 
         numberPattern, 
@@ -269,9 +263,6 @@ public class CalculatorLogic {
             result.add(current);
             if (i < tokens.size() - 1) {
                 String next = tokens.get(i + 1);
-
-                // If current is a number, constant, or ")" and next is a function or "(",
-                // insert "*".
                 boolean currentTriggers = isNumber(current) || CONSTANTS.containsKey(current) || current.equals(")");
                 boolean nextTriggers = FUNCTIONS.contains(next) || next.equals("(") || CONSTANTS.containsKey(next);
 
@@ -332,7 +323,6 @@ public class CalculatorLogic {
                 double a = numbers.pop();
                 numbers.push(applyFunction(a, token));
             } else if (token.equals("!")) {
-                // Special case for factorial as postfix operator
                 if (numbers.isEmpty()) {
                     throw new IllegalArgumentException("Insufficient values for operation !");
                 }

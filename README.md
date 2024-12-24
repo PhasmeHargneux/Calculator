@@ -37,9 +37,9 @@ An advanced Java calculator featuring a sleek GUI, scientific functions, and rob
 
 ## Prerequisites 📋
 - **Java 17** or later  
-- **Maven 3.6+** (or use the Maven Wrapper included in the repo)
+- **Maven 3.6+**
 
-> **Note:** You can check with `java -version` and `mvn -v`.
+> **Note:** You can check that with `java -version` and `mvn -v`.
 
 
 ## Installation 🛠️

@@ -1,7 +1,7 @@
 package my.calculator.ui;
 
-import java.awt.Color;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -31,9 +29,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Caret;
-
 import my.calculator.core.CalculatorLogic;
 
+/**
+ * Main application frame for the Java Scientific Calculator.
+ */
 public class CalculatorFrame {
     private JFrame frame;
     private JTextField textField;
@@ -44,13 +44,14 @@ public class CalculatorFrame {
     private boolean isScientific = false;
     private JPanel scientificPanel;
     private boolean isError = false;
-    private final String[] sciButtons = { "sin", "cos", "tan", "exp", "asin", "acos", "atan", "ln",
-    "!", "√", "x²", "π", "log", "10^", "e", "^", "(", ")", "←", "→" };
+    private final String[] sciButtons = { 
+        "sin", "cos", "tan", "exp", "asin", "acos", "atan", "ln",
+        "!", "√", "x²", "π", "log", "10^", "e", "^", "(", ")", "←", "→"
+    };
     private final Set<String> functions = new HashSet<>(Arrays.asList(
             "sin", "cos", "tan", "asin", "acos", "atan", "exp", "ln", "log", "√", "10^x"
     ));
 
-    // Getters
     public boolean isScientific() {
         return isScientific;
     }
@@ -75,28 +76,27 @@ public class CalculatorFrame {
         return textField.getCaretPosition();
     }
 
+    /** Constructs the calculator frame and initializes UI. */
     public CalculatorFrame() {
         initialize();
     }
 
+    /** Sets up all UI components and event listeners. */
     private void initialize() {
-        // Initialize the main frame
         frame = new JFrame("Java Scientific Calculator");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(400, 600); // Adjusted size to accommodate both panels
+        frame.setSize(400, 600);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
 
-        // Initialize the mainFont
         try {
             mainFont = Font.createFont(Font.TRUETYPE_FONT,
                     new File("src/main/resources/AfacadFlux-ExtraBold.ttf")).deriveFont(36f);
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
-            mainFont = new Font("Arial", Font.PLAIN, 24); // Fallback font
+            mainFont = new Font("Arial", Font.PLAIN, 24);
         }
 
-        // Initialize the display field
         textField = new RoundedTextFieldUI(4, 60, 60);
         textField.setFont(mainFont);
         Caret caret = textField.getCaret();
@@ -125,10 +125,10 @@ public class CalculatorFrame {
         });
         textField.addActionListener(e -> {
             try {
-                String expr = currentText; // Preserve the expression
+                String expr = currentText;
                 String result = CalculatorLogic.calculate(expr);
-                addToHistory(expr);        // Store the expression in history
-                updateDisplay(result);     // Then display the result
+                addToHistory(expr);
+                updateDisplay(result);
             } catch (Exception ex) {
                 updateDisplay("Error: " + ex.getMessage());
             }
@@ -145,14 +145,12 @@ public class CalculatorFrame {
         });
         frame.add(textField, BorderLayout.NORTH);
 
-        // Initialize the button panels
         initializeBasicPanel();
         initializeScientificPanel();
-
-        // Make the frame visible
         frame.setVisible(true);
     }
 
+    /** Builds and lays out basic (non-scientific) calculator buttons. */
     private void initializeBasicPanel() {
         JPanel basicPanel = new JPanel();
         GridBagLayout basicLayout = new GridBagLayout();
@@ -162,63 +160,63 @@ public class CalculatorFrame {
 
         GridBagConstraints gbcBasic = new GridBagConstraints();
         gbcBasic.fill = GridBagConstraints.BOTH;
-        gbcBasic.insets = new Insets(5, 5, 5, 5); // Spacing between buttons
+        gbcBasic.insets = new Insets(5, 5, 5, 5);
         gbcBasic.anchor = GridBagConstraints.CENTER;
         gbcBasic.weightx = 1.0;
         gbcBasic.weighty = 1.0;
 
-        // Create and add basic buttons
-        String[] basicButtons = { "AC", "C", "%", "÷", "7", "8", "9", "*",
-                "4", "5", "6", "-", "1", "2", "3", "+", ".", "0", "=" };
+        String[] basicButtons = {
+            "AC", "C", "%", "÷",
+            "7", "8", "9", "*",
+            "4", "5", "6", "-",
+            "1", "2", "3", "+",
+            ".", "0", "="
+        };
 
         int row = 0;
         int col = 0;
-
         for (String text : basicButtons) {
             JButton button = new RoundedButtonUI(text);
             button.setFont(mainFont);
             button.addActionListener(new ButtonClickListener());
-
             gbcBasic.gridx = col;
             gbcBasic.gridy = row;
-
             basicPanel.add(button, gbcBasic);
-
             col++;
-            if (col == 4) { // Move to the next row after every 4 buttons
+            if (col == 4) {
                 col = 0;
                 row++;
             }
         }
 
-        // Add the orange "Sci" button
         JButton scientificModeButton = new RoundedButtonUI("Sci");
         scientificModeButton.setFont(mainFont);
-        scientificModeButton.setBackground(Color.ORANGE); // Orange background for "Sci"
+        scientificModeButton.setBackground(Color.ORANGE);
         scientificModeButton.addActionListener(e -> toggleScientificButtons());
         gbcBasic.gridx = 3;
         gbcBasic.gridy = row;
-        basicPanel.add(scientificModeButton, gbcBasic); // Add to the basic panel
+        basicPanel.add(scientificModeButton, gbcBasic);
 
         frame.add(basicPanel, BorderLayout.CENTER);
     }
 
+    /** Builds and lays out scientific calculator buttons. */
     private void initializeScientificPanel() {
         scientificPanel = new JPanel();
         setupScientificPanelLayout();
         addScientificButtons();
         frame.add(scientificPanel, BorderLayout.EAST);
     }
-    
+
     private void setupScientificPanelLayout() {
         GridBagLayout sciLayout = new GridBagLayout();
         scientificPanel.setLayout(sciLayout);
         scientificPanel.setPreferredSize(new Dimension(400, 0));
         scientificPanel.setBackground(new Color(51, 51, 51));
         scientificPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        scientificPanel.setVisible(false); // Initially hidden
+        scientificPanel.setVisible(false);
     }
-    
+
     private void addScientificButtons() {
         GridBagConstraints sciGbc = new GridBagConstraints();
         sciGbc.fill = GridBagConstraints.BOTH;
@@ -226,28 +224,24 @@ public class CalculatorFrame {
         sciGbc.anchor = GridBagConstraints.CENTER;
         sciGbc.weightx = 1.0;
         sciGbc.weighty = 1.0;
-    
+
         int sciRow = 0;
         int sciCol = 0;
-    
         for (String text : sciButtons) {
             JButton button = new RoundedButtonUI(text);
             button.setFont(mainFont);
             button.addActionListener(this::handleScientificButtonClick);
-    
             sciGbc.gridx = sciCol;
             sciGbc.gridy = sciRow;
-    
             scientificPanel.add(button, sciGbc);
-    
             sciCol++;
-            if (sciCol == 4) { // Adjust columns as needed
+            if (sciCol == 4) {
                 sciCol = 0;
                 sciRow++;
             }
         }
     }
-    
+
     private void handleScientificButtonClick(ActionEvent e) {
         String command = e.getActionCommand();
         if (command.equals("e") || command.equals("π")) {
@@ -259,6 +253,10 @@ public class CalculatorFrame {
         } else if (command.equals("←")) {
             int pos = textField.getCaretPosition();
             if (pos > 0) {
+                setCurrentText(
+                    currentText.substring(0, pos - 1)
+                    + currentText.substring(pos)
+                );
                 textField.setCaretPosition(pos - 1);
             }
         } else if (command.equals("→")) {
@@ -266,25 +264,25 @@ public class CalculatorFrame {
             if (pos < currentText.length()) {
                 textField.setCaretPosition(pos + 1);
             }
-        } else {
+        } else if (command.equals("(") || command.equals(")")) {
             insertAtCaret(command);
+        } else if (command.equals("^")) {
+            insertAtCaret("^");
         }
     }
 
-    // Helper method to update display and keep currentText in sync
     private void updateDisplay(String newText) {
         currentText = newText;
         textField.setText(newText);
-        textField.setFont(mainFont); // Ensure default font is always used when displaying new text
+        textField.setFont(mainFont);
     }
 
-    // Method to toggle scientific buttons
     public void toggleScientificButtons() {
         if (!isScientific) {
             scientificPanel.setVisible(true);
-            frame.setSize(frame.getWidth() + scientificPanel.getPreferredSize().width, frame.getHeight()); // Adjust width as needed
+            frame.setSize(frame.getWidth() + scientificPanel.getPreferredSize().width, frame.getHeight());
         } else {
-            frame.setSize(frame.getWidth() - scientificPanel.getPreferredSize().width, frame.getHeight()); // Adjust width as needed
+            frame.setSize(frame.getWidth() - scientificPanel.getPreferredSize().width, frame.getHeight());
             scientificPanel.setVisible(false);
         }
         isScientific = !isScientific;
@@ -297,9 +295,7 @@ public class CalculatorFrame {
         String before = currentText.substring(0, caretPos);
         String after = currentText.substring(caretPos);
         String newText = before + functionName + "()" + after;
-
         updateDisplay(newText);
-        // Set the caret position right after the '(' to type inside the parentheses
         textField.setCaretPosition(caretPos + functionName.length() + 1);
     }
 
@@ -308,7 +304,6 @@ public class CalculatorFrame {
         String before = currentText.substring(0, caretPos);
         String after = currentText.substring(caretPos);
         String newText = before + constant + after;
-
         updateDisplay(newText);
         textField.setCaretPosition(caretPos + constant.length());
     }
@@ -323,44 +318,40 @@ public class CalculatorFrame {
         String before = currentText.substring(0, caretPos);
         String after = currentText.substring(caretPos);
         String newText = before + text + after;
-
         updateDisplay(newText);
         textField.setCaretPosition(caretPos + text.length());
     }
 
     public void showError(String errorMessage) {
         isError = true;
-        Font smallFont = mainFont.deriveFont(12f); // Set to smaller size
+        Font smallFont = mainFont.deriveFont(12f);
         textField.setFont(smallFont);
         updateDisplay(errorMessage);
     }
 
-    // Method to add expression to history
     private void addToHistory(String expression) {
         history.add(expression);
         historyIndex = history.size();
     }
 
-    // Method to navigate through history
     private void navigateHistory(int direction) {
         if (history.isEmpty()) return;
-
         historyIndex += direction;
         if (historyIndex < 0) {
             historyIndex = 0;
         } else if (historyIndex >= history.size()) {
             historyIndex = history.size() - 1;
         }
-
         setCurrentText(history.get(historyIndex));
     }
 
-    // Method to set the current text in the calculator display
     public void setCurrentText(String text) {
         updateDisplay(text);
     }
 
-    // ActionListener for basic button clicks
+    /**
+     * Handles basic calculator button actions.
+     */
     public class ButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -375,12 +366,9 @@ public class CalculatorFrame {
                 }
                 case "=" -> {
                     try {
-                        // Preserve the expression before calculating
                         String expr = currentText;
                         String result = CalculatorLogic.calculate(expr);
-                        // Store the expression in history
                         addToHistory(expr);
-                        // Then display the result
                         updateDisplay(result);
                     } catch (Exception ex) {
                         showError("Error: " + ex.getMessage());

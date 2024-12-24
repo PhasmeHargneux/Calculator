@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
@@ -18,7 +17,6 @@ public class RoundedButtonUI extends JButton {
 
     public RoundedButtonUI(String text) {
         super(text);
-
         setPreferredSize(new Dimension(40, 40));
         setOpaque(false);
         setContentAreaFilled(false);
@@ -35,27 +33,22 @@ public class RoundedButtonUI extends JButton {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Set button background color
         if (getModel().isArmed()) {
             g2.setColor(getBackground().darker());
         } else {
             g2.setColor(getBackground());
         }
 
-        // Draw rounded rectangle background
         g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), CORNER_RADIUS, CORNER_RADIUS));
 
-        // Draw button text
         FontMetrics fm = g2.getFontMetrics();
         String text = getText();
         int textWidth = fm.stringWidth(text);
         int textHeight = fm.getAscent();
-
         g2.setColor(getForeground());
         g2.drawString(text, (getWidth() - textWidth) / 2, (getHeight() + textHeight) / 2 - 3);
 
         g2.dispose();
-
         super.paintComponent(g);
     }
 }
