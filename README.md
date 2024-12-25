@@ -54,7 +54,7 @@ An advanced Java calculator featuring a sleek GUI, scientific functions, and rob
    mvn clean install
    ```
 
-## Usage 🚀
+## Usage 🚀 <a id="usage"></a>
 
 ### Run via Maven
 If you want to run the application directly :
@@ -63,7 +63,7 @@ If you want to run the application directly :
 mvn exec:java 
 ```
 
-## Examples 📊
+## Examples 📊 <a id="examples"></a>
 
 ### Basic Arithmetic
 ```bash
@@ -87,11 +87,11 @@ and many more...
 and many more...
 ```
 
-## Contributing 🤝
+## Contributing 🤝 <a id="contributing"></a>
 1. Fork the repository.
 2. Create a new branch (feature/your-feature).
 3. Commit your changes with a meaningful message.
 4. Open a Pull Request to discuss and merge your changes.
 
-## License 📜
+## License 📜 <a id="license"></a>
 This project is licensed under the MIT License. See the LICENSE file for details.
