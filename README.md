@@ -77,12 +77,14 @@ mvn exec:java
 sin(90)    => 1
 log(100)   => 2
 9sin(90)   => 9
+and many more...
 ```
 
 ### Error Handling
 ```bash
 5 / 0 => Error: Cannot divide by zero
 8++2 => Error: Consecutive operators
+and many more...
 ```
 
 ## Contributing 🤝
