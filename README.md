@@ -5,12 +5,12 @@ An advanced Java calculator featuring a sleek GUI, scientific functions, and rob
 <table>
   <tr>
     <td align="center">
-      <img src="docs/basic_screen.png" alt="Calculator Screenshot">
+      <img src="docs/basic_screen.png" alt="Calculator Screenshot" width="80%">
       <br>
       <em>Basic operations</em>
     </td>
     <td align="center">
-      <img src="docs/scientific_screen.png" alt="Calculator Screenshot">
+      <img src="docs/scientific_screen.png" alt="Calculator Screenshot" width="90%">
       <br>
       <em>Scientific functions</em>
     </td>
@@ -18,32 +18,30 @@ An advanced Java calculator featuring a sleek GUI, scientific functions, and rob
 </table>
 
 ## Table of Contents
-## Table of Contents
-- [Features](#features-✨)
-- [Prerequisites](#prerequisites-📋)
-- [Installation](#installation-🛠️)
-- [Usage](#usage-🚀)
-- [Examples](#examples-📊)
-- [Contributing](#contributing-🤝)
-- [License](#license-📜)
+- [Features ✨](#features)
+- [Prerequisites 📋](#prerequisites)
+- [Installation 🛠️](#installation)
+- [Usage 🚀](#usage)
+- [Examples 📊](#examples)
+- [Contributing 🤝](#contributing)
+- [License 📜](#license)
 
+---
 
-## Features ✨
+## Features ✨ <a id="features"></a>
 - **Basic Arithmetic**: `+`, `-`, `×`, `÷`, `%`
-- **Scientific Operations**: trigonometrics, exponentials, logarithms, factorials, etc.
+- **Scientific Operations**: Trigonometric functions, exponentials, logarithms, factorials, etc.
 - **Implicit Multiplication**: Support for expressions like `9sin(90)`, interpreted as `9 * sin(90)`.
-- **Results memorization**: Stores previous calculated expressions (try UP/DOWN arrows).
-- **Error Handling**: Displays error messages for invalid expressions or arithmetic exceptions (e.g. division by zero).
+- **Results Memorization**: Stores previously calculated expressions (use UP/DOWN arrows to navigate).
+- **Error Handling**: Displays error messages for invalid expressions or arithmetic exceptions (e.g., division by zero).
 
-
-## Prerequisites 📋
+## Prerequisites 📋 <a id="prerequisites"></a>
 - **Java 17** or later  
 - **Maven 3.6+**
 
 > **Note:** You can check that with `java -version` and `mvn -v`.
 
-
-## Installation 🛠️
+## Installation 🛠️ <a id="installation"></a>
 
 1. **Clone this repository**:
    ```bash
@@ -84,7 +82,7 @@ log(100)   => 2
 ### Error Handling
 ```bash
 5 / 0 => Error: Cannot divide by zero
-8++2 => Error: Invalid input
+8++2 => Error: Consecutive operators
 ```
 
 ## Contributing 🤝
