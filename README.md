@@ -18,13 +18,14 @@ An advanced Java calculator featuring a sleek GUI, scientific functions, and rob
 </table>
 
 ## Table of Contents
-- [Features](#features) ✨
-- [Prerequisites](#prerequisites) 📋
-- [Installation](#installation) 🛠️
-- [Usage](#usage) 🚀
-- [Examples](#examples) 📊
-- [Contributing](#contributing) 🤝
-- [License](#license) 📜
+## Table of Contents
+- [Features](#features-✨)
+- [Prerequisites](#prerequisites-📋)
+- [Installation](#installation-🛠️)
+- [Usage](#usage-🚀)
+- [Examples](#examples-📊)
+- [Contributing](#contributing-🤝)
+- [License](#license-📜)
 
 
 ## Features ✨
